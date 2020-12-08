@@ -5,10 +5,10 @@ import {setAsyncStorage, keys, getAsyncStorage} from '../asyncStorage/index';
 import api from '../services/api';
 
 
-const Login = ({ navigation }) => {
+const VerifyUser = ({ navigation }) => {
 
   const [email, setEmail] = React.useState('');
-  const [password, setPassword] = React.useState('');
+  const [verification_code, setVerificationCode] = React.useState('');
 
   /** Efeitos de animação da logo */
   const [logo, setLogo] = React.useState(new Animated.ValueXY({x: 250, y: 100}));
@@ -52,38 +52,30 @@ const Login = ({ navigation }) => {
 
   //** Fim dos efeitos de animação */
 
-  const loginRequest = async (email, password) =>{
-    const response = await api.post('/session', {email, password});
+  const verifyRequest = async (email, verification_code) =>{
+    const response = await api.post('/verify_user', {email, verification_code})
+    // .then((response)=>{
+    //   console.log(response.data);
+    // }).catch(err=>alert(err));
+
     console.log(response.data);
+    //handleGoToLogin();
   };
 
-  const isLoged = async (barrer) => {
-    const response = await api.get('/protected', {
-      headers: {
-        'Authorization': `Bearer ${`eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjJmNTQyZmQ4LWRlNzQtNDMyMy1hOGJjLTk5NjQ3Mzg5NWFmMyIsImVtYWlsIjoid2lsbGlhbi5zLnByYWNpYW5vQG91dGxvb2suY29tIiwiaWF0IjoxNjA2OTcwNzQwLCJleHAiOjE2MDc1NzU1NDB9.p7YfNfWn8AqEW_G5CES3UYBV6m2krPWxtbN2lWy3_2I`}`
-      }
-    });
-  }
-
-  const handleLogin = async (email, password) => {
+  const handleVerify = async (email, verification_code) => {
     if(!email){
       Alert.alert("Atenção", "Prencha o campo de Email"); 
-    }else if(!password){
-      Alert.alert("Atenção", "Prencha o campo de Senha");
+    }else if(!verification_code){
+      Alert.alert("Atenção", "Prencha o campo de Código de Verificação");
     }else{
-      loginRequest(email, password).then((res)=>{
+      verifyRequest(email, verification_code).then((res)=>{
         console.log(res);
-        isLoged(res.token).then((r)=>{});
       });
     }
   }
 
-  const handleGoToLogon = () => {
-    navigation.navigate('SignUp');
-  }
-
-  const handleGoToVerify = () => {
-    navigation.navigate('VerifyUser');
+  const handleGoToLogin = () => {
+    navigation.navigate('Login');
   }
 
   return (
@@ -108,27 +100,22 @@ const Login = ({ navigation }) => {
         />
         <TextInput
           //mode="outlined"
-          label="Senha"
-          value={password}
-          secureTextEntry={true}
+          label="Codigo de Verificação"
+          value={verification_code}
           style={styles.inputText}
-          onChangeText={password => setPassword(password)}
+          onChangeText={password => setVerificationCode(password)}
         />
         <Button 
           mode="contained" 
           dark={true}
           style={styles.button} 
-          onPress={()=>handleLogin(email, password)}
+          onPress={()=>handleVerify(email, verification_code)}
         >
-          Entrar
+          Verificar
         </Button>
 
-        <Text style={styles.textRegister} onPress={()=>handleGoToLogon()}>
-          Não tem uma conta? <Text style={{fontWeight: 'bold'}}> Crie uma conta aqui </Text>
-        </Text>
-
-        <Text style={styles.textRegister} onPress={()=>handleGoToVerify()}>
-          Já se cadastrou? <Text style={{fontWeight: 'bold'}}> Verifique sua conta aqui</Text>
+        <Text style={styles.textRegister} onPress={()=>handleGoToLogin()}>
+          Já tem uma conta? <Text style={{fontWeight: 'bold'}}> Entre aqui aqui </Text>
         </Text>
       </View>
     </View>
@@ -171,4 +158,4 @@ const styles = StyleSheet.create({
   
 });
 
-export default Login;
+export default VerifyUser;
