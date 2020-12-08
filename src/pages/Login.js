@@ -123,6 +123,15 @@ const Login = ({ navigation }) => {
           Entrar
         </Button>
 
+        <Button 
+          mode="contained" 
+          dark={true}
+          style={styles.button} 
+          onPress={()=>{navigation.navigate('Main')}}
+        >
+          Home
+        </Button>
+
         <Text style={styles.textRegister} onPress={()=>handleGoToLogon()}>
           Não tem uma conta? <Text style={{fontWeight: 'bold'}}> Crie uma conta aqui </Text>
         </Text>
