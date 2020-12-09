@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "EconomEasy",
-    "slug": "EconomEasy",
+    "name": "OrganEasy",
+    "slug": "OrganEasy",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",

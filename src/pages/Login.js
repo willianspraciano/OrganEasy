@@ -1,8 +1,12 @@
 import React, {useState, useEffect} from 'react';
 import { StyleSheet, View, Text, Image, Animated, Keyboard, Alert } from 'react-native';
 import { TextInput, Button} from 'react-native-paper';
+
+
 import {setAsyncStorage, keys, getAsyncStorage} from '../asyncStorage/index';
 import api from '../services/api';
+import { AuthContext } from '../components/context'
+
 
 
 const Login = ({ navigation }) => {
@@ -17,6 +21,10 @@ const Login = ({ navigation }) => {
     KeyboardDidShowListener = Keyboard.addListener('keyboardDidShow', keyboardDidShow);
     KeyboardDidHideListener = Keyboard.addListener('keyboardDidHide', keyboardDidHide);
   },[]);
+
+  React.useLayoutEffect(async()=>{
+    alert(await AsyncStorage.getItem('OrganEasy@userName'));
+  },[navigation]);
 
   function keyboardDidShow () {
     //Alert.alert("Teclado apareceu");
@@ -52,9 +60,12 @@ const Login = ({ navigation }) => {
 
   //** Fim dos efeitos de animação */
 
+  const { signIn } = React.useContext(AuthContext);
+
   const loginRequest = async (email, password) =>{
     const response = await api.post('/session', {email, password});
-    console.log(response.data);
+    //console.log(response.data);
+    signIn(response.data.id, response.data.name, response.data.email, response.data.token);
   };
 
   const isLoged = async (barrer) => {
@@ -73,7 +84,6 @@ const Login = ({ navigation }) => {
     }else{
       loginRequest(email, password).then((res)=>{
         console.log(res);
-        isLoged(res.token).then((r)=>{});
       });
     }
   }
@@ -121,15 +131,6 @@ const Login = ({ navigation }) => {
           onPress={()=>handleLogin(email, password)}
         >
           Entrar
-        </Button>
-
-        <Button 
-          mode="contained" 
-          dark={true}
-          style={styles.button} 
-          onPress={()=>{navigation.navigate('Main')}}
-        >
-          Home
         </Button>
 
         <Text style={styles.textRegister} onPress={()=>handleGoToLogon()}>

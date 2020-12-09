@@ -4,21 +4,41 @@ import { TextInput, Button} from 'react-native-paper';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import{Ionicons} from '@expo/vector-icons';
 import TaskList from  '../components/TaskList';
-import * as Animatable from 'react-native-animatable'; 
+import * as Animatable from 'react-native-animatable';
+
+import { AuthContext } from '../components/context'
 
 const AnimateBtn = Animatable.createAnimatableComponent(TouchableOpacity);
 
-export default function Main() {
+export default function Main({navigation}) {
 
+  const [uuid, setUuid] = useState('');
   const [task, setTask] = useState([ ]);
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState('');
 
+  const { signOut } = React.useContext(AuthContext);
+
+  React.useLayoutEffect(() => {
+    navigation.setOptions({
+      headerRight: ()=>(
+        <TouchableOpacity onPress={()=>{signOut()}}>
+          <Ionicons name="ios-log-out"size={30} color="#FFF" style={{right: 10,}}/>
+        </TouchableOpacity>
+      ),
+    });
+  }, [navigation]);
+  
+
   //Buscando todas as tarefas ao iniciar o App
   useEffect(()=> {
     async function loadTasks(){
-      const taskStorage = await AsyncStorage.getItem('@task');
+      const id = await AsyncStorage.getItem('OrganEasy@userId');
+      if(id){
+        setUuid(id);
+      }
 
+      const taskStorage = await AsyncStorage.getItem('OrganEasy@task@'+id);
       if(taskStorage){
         setTask(JSON.parse(taskStorage));
       }
@@ -29,7 +49,7 @@ export default function Main() {
   //Salvando Caso Tenha alguma tarefa alterada
   useEffect(()=> {
     async function saveTasks(){
-      await AsyncStorage.setItem('@task', JSON.stringify(task));
+      await AsyncStorage.setItem('OrganEasy@task@'+uuid, JSON.stringify(task));
     }
     saveTasks();
   },[task]);
