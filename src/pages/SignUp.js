@@ -14,6 +14,7 @@ import DateTimePickerModal from 'react-native-modal-datetime-picker';
 
 import {setAsyncStorage, keys} from '../asyncStorage/index';
 import api from '../services/api';
+import { set } from 'react-native-reanimated';
 
 const SignUp = ({ navigation }) => {
   const [email, setEmail] = React.useState('');
@@ -77,20 +78,71 @@ const SignUp = ({ navigation }) => {
   //** Fim dos efeitos de animação */
 
   const signUpRequest = async (name, birth_date, gender, email, password, password_confirmation) =>{
-    //
-    const response = await api.post('/users', {name, birth_date, gender, email, password, password_confirmation});
-    console.log(response.data);
-    handleGoToVerify();
+
+    //const response =
+    if(password !== password_confirmation){
+      Alert.alert(
+        "Atenção",
+        "As senhas devem ser iguais",
+        [
+          { 
+            text: "OK", 
+            onPress: () => {
+              setPasswordConfirmation('');
+            } }
+        ],
+        { cancelable: false }
+      );
+    }else{
+      await api.post('/users', {name, birth_date, gender, email, password, password_confirmation})
+        .then((response)=>{
+          console.log(response.data);
+          setName('');
+          setBirthDate('');
+          setEmail('');
+          setPassword('');
+          setPasswordConfirmation('');
+          Alert.alert(
+            "Atenção",
+            "Digite o código que você recebeu no seu email",
+            [
+              { 
+                text: "OK", 
+                onPress: () => {
+                  setEmail(''); 
+                  setPassword('');
+                } }
+            ],
+            { cancelable: false }
+          );
+          handleGoToVerify();
+        })
+        .catch((error)=>{
+          console.log(error.response.data);
+          if(error.response.status === 400){
+            setEmail('');
+            setPassword('');
+            setPasswordConfirmation('');
+            Alert.alert(
+              "Atenção",
+              "Este email já está sendo usado! "+ 
+              "Caso ainda não tenha acesso à conta "+ 
+              "verifique o código que você recebeu no seu email "+
+              "e clique em 'Verificar conta'",
+              [
+                { 
+                  text: "OK", 
+                  onPress: () => {
+                    setEmail(''); 
+                    setPassword('');
+                  } }
+              ],
+              { cancelable: false }
+            );
+          }
+        });
+    }
   };
-
-  const CreateUser = async (name, email, uid) =>{
-    //
-  };
-
-  const handleLogOn = async (name, email, password) => {
-    //alert(gender);
-
-  }
 
   const handleGoToVerify = () => {
     navigation.navigate('VerifyUser');

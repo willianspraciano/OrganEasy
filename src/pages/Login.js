@@ -22,10 +22,6 @@ const Login = ({ navigation }) => {
     KeyboardDidHideListener = Keyboard.addListener('keyboardDidHide', keyboardDidHide);
   },[]);
 
-  React.useLayoutEffect(async()=>{
-    alert(await AsyncStorage.getItem('OrganEasy@userName'));
-  },[navigation]);
-
   function keyboardDidShow () {
     //Alert.alert("Teclado apareceu");
     Animated.parallel([
@@ -63,18 +59,51 @@ const Login = ({ navigation }) => {
   const { signIn } = React.useContext(AuthContext);
 
   const loginRequest = async (email, password) =>{
-    const response = await api.post('/session', {email, password});
-    //console.log(response.data);
-    signIn(response.data.id, response.data.name, response.data.email, response.data.token);
+    //const response = 
+    await api.post('/session', {email, password})
+      .then((response)=>{
+        //console.log(response.data);
+        signIn(response.data.id, response.data.name, response.data.email, response.data.token);
+      })
+      .catch((error)=>{
+        if(error.response.status === 400){
+          Alert.alert(
+            "Atenção",
+            "Usuário não está cadastrado!",
+            [
+              { 
+                text: "OK", 
+                onPress: () => {
+                  setEmail(''); 
+                  setPassword('');
+                } }
+            ],
+            { cancelable: false }
+          );
+        }else if(error.response.status === 401){
+          Alert.alert(
+            "Atenção",
+            "Senha incorreta!",
+            [
+              { 
+                text: "OK", 
+                onPress: () => {
+                  setPassword('');
+                } }
+            ],
+            { cancelable: false }
+          );
+        }
+      });
   };
 
-  const isLoged = async (barrer) => {
-    const response = await api.get('/protected', {
-      headers: {
-        'Authorization': `Bearer ${`eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjJmNTQyZmQ4LWRlNzQtNDMyMy1hOGJjLTk5NjQ3Mzg5NWFmMyIsImVtYWlsIjoid2lsbGlhbi5zLnByYWNpYW5vQG91dGxvb2suY29tIiwiaWF0IjoxNjA2OTcwNzQwLCJleHAiOjE2MDc1NzU1NDB9.p7YfNfWn8AqEW_G5CES3UYBV6m2krPWxtbN2lWy3_2I`}`
-      }
-    });
-  }
+  // const isLoged = async (barrer) => {
+  //   const response = await api.get('/protected', {
+  //     headers: {
+  //       'Authorization': `Bearer ${`eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjJmNTQyZmQ4LWRlNzQtNDMyMy1hOGJjLTk5NjQ3Mzg5NWFmMyIsImVtYWlsIjoid2lsbGlhbi5zLnByYWNpYW5vQG91dGxvb2suY29tIiwiaWF0IjoxNjA2OTcwNzQwLCJleHAiOjE2MDc1NzU1NDB9.p7YfNfWn8AqEW_G5CES3UYBV6m2krPWxtbN2lWy3_2I`}`
+  //     }
+  //   });
+  // }
 
   const handleLogin = async (email, password) => {
     if(!email){

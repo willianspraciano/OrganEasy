@@ -53,12 +53,46 @@ const VerifyUser = ({ navigation }) => {
   //** Fim dos efeitos de animação */
 
   const verifyRequest = async (email, verification_code) =>{
-    const response = await api.post('/verify_user', {email, verification_code})
-    // .then((response)=>{
-    //   console.log(response.data);
-    // }).catch(err=>alert(err));
+    //const response = 
+    await api.post('/verify_user', {email, verification_code})
+      .then((response)=>{
+         console.log("Resposta: " + response.data);
+         if(response.status === 204){
+          Alert.alert(
+            "Sucesso",
+            "Seu email foi verificado com sucesso!",
+            [
+              { 
+                text: "OK", 
+                onPress: () => {
+                  setEmail(''); 
+                  setVerificationCode('');
+                } }
+            ],
+            { cancelable: false }
+          );
+           navigation.replace('Login');
+         }
+      }).catch((error)=>{
+        console.log("Resposta do Erro: "+ error.response.data);
+        if(error.response.status === 400){
+          setVerificationCode('');
+          Alert.alert(
+            "Atenção",
+            "Email já verificado ou código invalido",
+            [
+              { 
+                text: "OK", 
+                onPress: () => {
+                  setVerificationCode('');
+                } }
+            ],
+            { cancelable: false }
+          );
+        }
+      });
 
-    console.log(response.data);
+    //console.log(response.data);
     //handleGoToLogin();
   };
 
